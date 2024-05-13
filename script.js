@@ -86,8 +86,8 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
 </div>
 </div>
 <div id="chevrons">
-    <img id="chev-left" src="img/chevron-left-white.svg" onclick="previousCard()">
-    <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard()">
+    <img id="chev-left" src="img/chevron-left-white.svg" onclick="previousCard(${cardID})">
+    <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID})">
     </div>
 </div>`;
 renderTypesBigCard();
@@ -129,33 +129,34 @@ function renderAbilities() {
 
 // -------- GROSSE KARTE SCHLIESSEN -------- //
 
-function closeBigCard() {
+function closeBigCard(cardID) {
     document.getElementById('bigCardContainer').innerHTML = '';
 }
 
 
 // -------- NÄCHSTE KARTE -------- //
 
-function nextCard(i) {
-    let nextCard = i + 1;
+function nextCard(cardID) {
+    let nextCard = pokemon[i + 1];
+    // INFO: cardID = pokemon[i];
 
-    if (i < images.length - 1) {
+    if (i < pokemon.length - 1) {
         openBigCard(nextCard);
     } else {
-        closeBigCard(i);
+        closeBigCard(cardID);
     }
 }
 
 
 // -------- VORHERIGE KARTE -------- //
 
-function previousCard(i) {
+function previousCard(cardID) {
     let nextCard = i - 1;
 
     if (i > 0) {
         openBigCard(nextCard);
     } else {
-        closeBigCard(i);
+        closeBigCard(cardID);
     }
 }
 

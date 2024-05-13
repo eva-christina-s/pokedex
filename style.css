@@ -4,6 +4,49 @@ body {
     background-color: #5656561e;
 }
 
+#header {
+    background-color: #cecdcd;
+    height: 60px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+h2 {
+    margin: 0 10px 0 20px;
+    color: #ffffff;
+    font-size: 250%;
+    font-weight: 400;
+}
+
+.search {
+    background-color: #ffffff;
+    width: 30%;
+    height: 70%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+input {
+    border: unset;
+    font-size: 110%;
+}
+
+input:focus {
+    outline: none;
+}
+
+.icon {
+    height: 2.5vh;
+    margin-left: 11px;
+    margin-top: 2px;
+    margin-right: 8px;
+    filter: opacity(0.7);
+}
+
 #container {
     display: flex;
     flex-wrap: wrap;
@@ -199,21 +242,4 @@ display: block;
         justify-content: center;
         gap: 8px;
     }
-    
-    #chevrons img {
-        flex: none;
-        object-fit: scale-down;
-        height: 50px;
-        cursor: pointer;
-    }
-    
-    #chev-left {
-        flex: none;
-        width: max-content;
-    }
-    
-    #chev-right {
-        width: max-content;
-    }
-    
 }
