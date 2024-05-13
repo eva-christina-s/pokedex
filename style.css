@@ -186,5 +186,34 @@ display: block;
     .card-big {
         margin: 15px;
 }
+}
 
+@media (max-width: 450px) {
+    #chevrons {
+        position: absolute;
+        top: 85%;
+        width: 100%;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    #chevrons img {
+        flex: none;
+        object-fit: scale-down;
+        height: 50px;
+        cursor: pointer;
+    }
+    
+    #chev-left {
+        flex: none;
+        width: max-content;
+    }
+    
+    #chev-right {
+        width: max-content;
+    }
+    
 }
