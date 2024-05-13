@@ -1,4 +1,4 @@
-let pokemon = ['bulbasaur', 'ivysaur', 'venusaur', 'charmander', 'charmeleon'];
+let pokemon = [1, 2, 3, 4, 5];
 let currentPokemon;
 let cardID;
 let pokemonName;
@@ -46,17 +46,12 @@ function renderCards() {
 </div>
 <div id="bigCardContainer"></div>`
     renderTypes(cardID);
-    console.log(cardID);
-    console.log(currentPokemon);
 }
 
 
 // -------- GROSSE KARTE ANZEIGEN -------- //
 
 function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
-    console.log(cardID);
-    console.log(pokemonName);
-
     document.getElementById('bigCardContainer').innerHTML = '';
     document.getElementById('bigCardContainer').innerHTML += /*html*/`
     <div class="dialog-bg" id="dialog(${cardID})">
@@ -90,7 +85,7 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
     <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID})">
     </div>
 </div>`;
-renderTypesBigCard();
+    renderTypesBigCard();
     showChart();
     renderAbilities();
 }
@@ -110,7 +105,7 @@ function renderTypes(cardID) {
 function renderTypesBigCard(cardID) {
     for (let j = 0; j < currentPokemon['types'].length; j++) {
         pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
-    document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
+        document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
     <div class="property">${pokemonType}</div>`;
     }
 }

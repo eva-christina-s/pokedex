@@ -22,7 +22,8 @@ h2 {
 
 .search {
     background-color: #ffffff;
-    width: 30%;
+    width: 50%;
+    max-width: 300px;
     height: 70%;
     border-radius: 20px;
     display: flex;
@@ -223,7 +224,25 @@ display: block;
 }
 
 
+@media (max-width: 570px) {
+    #header {
+        flex-direction: column;
+        height: 70%;
+        align-items: center;
+        justify-content: center;
+    }
 
+    h2 {
+        margin-left: 0;
+    }
+
+    .search {
+        margin-top: 10px;
+        margin-bottom: 10px;
+       height: 40px;
+       min-width: 280px;
+    }
+}
 
 @media (max-width: 320px) {
     .card-big {
