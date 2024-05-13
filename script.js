@@ -41,11 +41,11 @@ function renderCards() {
     <div class="card-small" id="card_small_${cardID}" onclick="openBigCard('${cardID}', '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}', '${pokemonAbility}')">
     <h1>${pokemonName}</h1>
     <div class="image"><img src="${pokemonImage}" alt=""></div>
-    <div class="properties-overview" id="properties-overview${cardID}">
+    <div class="properties-overview" id="properties-overview-${cardID}">
     </div>
 </div>
 <div id="bigCardContainer"></div>`
-    renderTypes();
+    renderTypes(cardID);
     console.log(cardID);
     console.log(currentPokemon);
 }
@@ -53,21 +53,18 @@ function renderCards() {
 
 // -------- GROSSE KARTE ANZEIGEN -------- //
 
-function openBigCard(bigCardID, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
-    console.log(bigCardID);
+function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
+    console.log(cardID);
     console.log(pokemonName);
 
     document.getElementById('bigCardContainer').innerHTML = '';
     document.getElementById('bigCardContainer').innerHTML += /*html*/`
-    <div class="dialog-bg" id="dialog(${bigCardID})">
+    <div class="dialog-bg" id="dialog(${cardID})">
     <img id="close-icon" src="./img/x-lg-white.svg" onclick="closeBigCard()">
     <div class="card-big">
         <h1>${pokemonName}</h1>
         <div class="image"><img src="${pokemonImage}" alt=""></div>
-        <div class="properties-overview">
-        <div class="property">X</div>
-        <div class="property">Y</div>
-        </div>
+        <div class="properties-overview" id="properties-overview-bc-${cardID}"></div>
         <div class="details">
             <div class="card-menu">
                 <div class="menu-item" id="menu-about" onclick="openTabAbout()">About</div>
@@ -92,7 +89,8 @@ function openBigCard(bigCardID, pokemonName, pokemonImage, pokemonSpecies, pokem
     <img id="chev-left" src="img/chevron-left-white.svg" onclick="previousCard()">
     <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard()">
     </div>
-</div>`
+</div>`;
+renderTypesBigCard();
     showChart();
     renderAbilities();
 }
@@ -100,10 +98,19 @@ function openBigCard(bigCardID, pokemonName, pokemonImage, pokemonSpecies, pokem
 
 // -------- TYPEN ANZEIGEN -------- //
 
-function renderTypes() {
+function renderTypes(cardID) {
     for (let j = 0; j < currentPokemon['types'].length; j++) {
         pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
-        document.getElementById(`properties-overview${cardID}`).innerHTML += /*html*/`
+        document.getElementById(`properties-overview-${cardID}`).innerHTML += /*html*/`
+    <div class="property">${pokemonType}</div>`;
+    }
+}
+
+
+function renderTypesBigCard(cardID) {
+    for (let j = 0; j < currentPokemon['types'].length; j++) {
+        pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
+    document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
     <div class="property">${pokemonType}</div>`;
     }
 }
@@ -115,10 +122,9 @@ function renderAbilities() {
     for (let k = 0; k < currentPokemon['abilities'].length; k++) {
         pokemonAbility = currentPokemon['abilities'][k]['ability']['name'];
         document.getElementById(`abilities${cardID}`).innerHTML += /*html*/`
-    <div class="ability">${pokemonAbility} </div>`
+    <div class="ability">${pokemonAbility}</div>`
     }
 }
-
 
 
 // -------- GROSSE KARTE SCHLIESSEN -------- //
