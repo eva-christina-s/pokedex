@@ -1,4 +1,4 @@
-let pokemon = [1, 2, 3, 4, 5];
+let pokemon = [1, 2, 3, 4, 5, 6];
 let currentPokemon;
 let cardID;
 let pokemonName;
@@ -85,7 +85,7 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
     <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID})">
     </div>
 </div>`;
-    renderTypesBigCard();
+renderTypesBigCard();
     showChart();
     renderAbilities();
 }
@@ -106,7 +106,7 @@ function renderTypesBigCard(cardID) {
     for (let j = 0; j < currentPokemon['types'].length; j++) {
         pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
         document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
-    <div class="property">${pokemonType}</div>`;
+        <div class="property">${pokemonType}</div>`;
     }
 }
 
@@ -132,24 +132,23 @@ function closeBigCard(cardID) {
 // -------- NÄCHSTE KARTE -------- //
 
 function nextCard(cardID) {
-    let nextCard = pokemon[i + 1];
-    // INFO: cardID = pokemon[i];
+    let nextCard = cardID + 1;
 
-    if (i < pokemon.length - 1) {
+    // if (i < pokemon.length - 1) {
         openBigCard(nextCard);
-    } else {
-        closeBigCard(cardID);
-    }
+    // } else {
+    //     closeBigCard(cardID);
+    // }
 }
 
 
 // -------- VORHERIGE KARTE -------- //
 
 function previousCard(cardID) {
-    let nextCard = i - 1;
+    let previousCard = cardID - 1;
 
     if (i > 0) {
-        openBigCard(nextCard);
+        openBigCard(previousCard);
     } else {
         closeBigCard(cardID);
     }
