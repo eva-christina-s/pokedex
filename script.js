@@ -1,4 +1,4 @@
-let pokemon = [1, 2, 3, 4, 5, 6];
+let pokemon = [1, 2, 3, 4];
 let currentPokemon;
 let pokemonName;
 let pokemonImage;
@@ -52,7 +52,7 @@ function renderCards(cardID) {
 function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
     document.getElementById('bigCardContainer').innerHTML = '';
     document.getElementById('bigCardContainer').innerHTML += /*html*/`
-    <div class="dialog-bg" id="dialog(${cardID})">
+    <div class="dialog-bg" id="dialog_${cardID}">
     <img id="close-icon" src="./img/x-lg-white.svg" onclick="closeBigCard('${cardID}')">
     <div class="card-big">
         <h1>${pokemonName}</h1>
