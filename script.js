@@ -1,6 +1,5 @@
 let pokemon = [1, 2, 3, 4, 5, 6];
 let currentPokemon;
-let cardID;
 let pokemonName;
 let pokemonImage;
 let pokemonType;
@@ -17,7 +16,7 @@ async function init() {
 
 async function loadPokemon() {
     for (let i = 0; i < pokemon.length; i++) {
-        cardID = pokemon[i];
+       let cardID = pokemon[i];
         let url = `https://pokeapi.co/api/v2/pokemon/${cardID}`;
         let response = await fetch(url);
 
@@ -28,14 +27,14 @@ async function loadPokemon() {
         pokemonHeight = currentPokemon['height'];
         pokemonWeight = currentPokemon['weight'];
 
-        renderCards();
+        renderCards(cardID);
     }
 }
 
 
 // -------- KARTEN ANZEIGEN -------- //
 
-function renderCards() {
+function renderCards(cardID) {
     // document.getElementById('container').innerHTML = '';
     document.getElementById('container').innerHTML += /*html*/`
     <div class="card-small" id="card_small_${cardID}" onclick="openBigCard('${cardID}', '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}', '${pokemonAbility}')">
@@ -43,8 +42,7 @@ function renderCards() {
     <div class="image"><img src="${pokemonImage}" alt=""></div>
     <div class="properties-overview" id="properties-overview-${cardID}">
     </div>
-</div>
-<div id="bigCardContainer"></div>`
+</div>`
     renderTypes(cardID);
 }
 
@@ -55,7 +53,7 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
     document.getElementById('bigCardContainer').innerHTML = '';
     document.getElementById('bigCardContainer').innerHTML += /*html*/`
     <div class="dialog-bg" id="dialog(${cardID})">
-    <img id="close-icon" src="./img/x-lg-white.svg" onclick="closeBigCard()">
+    <img id="close-icon" src="./img/x-lg-white.svg" onclick="closeBigCard('${cardID}')">
     <div class="card-big">
         <h1>${pokemonName}</h1>
         <div class="image"><img src="${pokemonImage}" alt=""></div>
@@ -85,9 +83,9 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
     <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID})">
     </div>
 </div>`;
-renderTypesBigCard();
-    showChart();
-    renderAbilities();
+renderTypesBigCard(cardID);
+    showChart(cardID);
+    renderAbilities(cardID);
 }
 
 
@@ -113,7 +111,7 @@ function renderTypesBigCard(cardID) {
 
 // -------- FÄHIGKEITEN ANZEIGEN -------- //
 
-function renderAbilities() {
+function renderAbilities(cardID) {
     for (let k = 0; k < currentPokemon['abilities'].length; k++) {
         pokemonAbility = currentPokemon['abilities'][k]['ability']['name'];
         document.getElementById(`abilities${cardID}`).innerHTML += /*html*/`
@@ -134,7 +132,7 @@ function closeBigCard(cardID) {
 function nextCard(cardID) {
     let nextCard = cardID + 1;
 
-    // if (i < pokemon.length - 1) {
+    // if (cardID < pokemon.length - 1) {
         openBigCard(nextCard);
     // } else {
     //     closeBigCard(cardID);
@@ -174,7 +172,7 @@ function openTabStats() {
 
 // -------- CHARTS GROSSE KARTE -------- //
 
-function showChart() {
+function showChart(cardID) {
     const ctx = document.getElementById('base-stats-charts');
 
     new Chart(ctx, {
