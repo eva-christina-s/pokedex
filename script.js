@@ -1,57 +1,63 @@
 let pokemon = [1, 2, 3, 4];
-let currentPokemon;
-let pokemonName;
-let pokemonImage;
-let pokemonType;
-let pokemonSpecies;
-let pokemonHeight;
-let pokemonWeight;
-let pokemonAbility;
-
+let allPokemon = [];
 
 
 async function init() {
     await loadPokemon();
 }
 
+
+// -------- DATEN LADEN -------- //
+
 async function loadPokemon() {
     for (let i = 0; i < pokemon.length; i++) {
-       let cardID = pokemon[i];
+        let cardID = pokemon[i];
         let url = `https://pokeapi.co/api/v2/pokemon/${cardID}`;
         let response = await fetch(url);
 
-        currentPokemon = await response.json();
-        pokemonName = currentPokemon['name'].charAt(0).toUpperCase() + currentPokemon['name'].slice(1);
-        pokemonImage = currentPokemon['sprites']['other']['official-artwork']['front_default'];
-        pokemonSpecies = currentPokemon['species']['name'].charAt(0).toUpperCase() + currentPokemon['species']['name'].slice(1);
-        pokemonHeight = currentPokemon['height'];
-        pokemonWeight = currentPokemon['weight'];
+        let currentPokemon = await response.json();
+        allPokemon.push(currentPokemon);
+        let pokemonName = currentPokemon['name'].charAt(0).toUpperCase() + currentPokemon['name'].slice(1);
+        let pokemonImage = currentPokemon['sprites']['other']['official-artwork']['front_default'];
+        let pokemonSpecies = currentPokemon['species']['name'].charAt(0).toUpperCase() + currentPokemon['species']['name'].slice(1);
+        let pokemonHeight = currentPokemon['height'];
+        let pokemonWeight = currentPokemon['weight'];
 
-        renderCards(cardID);
+        renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
     }
 }
 
 
 // -------- KARTEN ANZEIGEN -------- //
 
-function renderCards(cardID) {
-    // document.getElementById('container').innerHTML = '';
+function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
     document.getElementById('container').innerHTML += /*html*/`
-    <div class="card-small" id="card_small_${cardID}" onclick="openBigCard('${cardID}', '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}', '${pokemonAbility}')">
+    <div class="card-small" id="card_small_${cardID}" onclick="openBigCard(${cardID}, ${i}, '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}')">
     <h1>${pokemonName}</h1>
     <div class="image"><img src="${pokemonImage}" alt=""></div>
     <div class="properties-overview" id="properties-overview-${cardID}">
     </div>
-</div>`
-    renderTypes(cardID);
+</div>`;
+    renderTypes(cardID, i);
 }
 
 
 // -------- GROSSE KARTE ANZEIGEN -------- //
 
-function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
+function openBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
     document.getElementById('bigCardContainer').innerHTML = '';
-    document.getElementById('bigCardContainer').innerHTML += /*html*/`
+    document.getElementById('bigCardContainer').innerHTML += returnHTMLBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
+
+    renderTypesBigCard(cardID, i);
+    renderAbilities(cardID, i);
+    showChart(cardID);
+}
+
+
+// -------- GROSSE KARTE HTML -------- //
+
+function returnHTMLBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
+    return /*html*/`
     <div class="dialog-bg" id="dialog_${cardID}">
     <img id="close-icon" src="./img/x-lg-white.svg" onclick="closeBigCard('${cardID}')">
     <div class="card-big">
@@ -63,46 +69,40 @@ function openBigCard(cardID, pokemonName, pokemonImage, pokemonSpecies, pokemonH
                 <div class="menu-item" id="menu-about" onclick="openTabAbout()">About</div>
                 <div class="menu-item" id="menu-stats" onclick="openTabStats()">Base Stats</div>
                 </div>
-
                 <div class="property-details" id="about">
                 <div><b>Species: </b>${pokemonSpecies}</div>
                 <div><b>Height: </b>${pokemonHeight}</div>
                 <div><b>Weight: </b>${pokemonWeight}</div>
                 <div class="abilities" id="abilities${cardID}"><div><b>Abilities: </b></div></div>
                 </div>
-
-                <div class="property-details" id="base-stats">
-<div>
+                <div class="property-details" id="base-stats"><div>
     <canvas id="base-stats-charts"></canvas>
     </div>
  </div>
 </div>
 </div>
 <div id="chevrons">
-    <img id="chev-left" src="img/chevron-left-white.svg" onclick="previousCard(${cardID})">
-    <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID})">
+    <img id="chev-left" src="img/chevron-left-white.svg" onclick="previousCard(${cardID}, ${i}, '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}')">
+    <img id="chev-right" src="img/chevron-right-white.svg" onclick="nextCard(${cardID}, ${i}, '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}')">
     </div>
 </div>`;
-renderTypesBigCard(cardID);
-    showChart(cardID);
-    renderAbilities(cardID);
 }
 
 
 // -------- TYPEN ANZEIGEN -------- //
 
-function renderTypes(cardID) {
-    for (let j = 0; j < currentPokemon['types'].length; j++) {
-        pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
+function renderTypes(cardID, i) {
+    for (let j = 0; j < allPokemon[i]['types'].length; j++) {
+        let pokemonType = allPokemon[i]['types'][j]['type']['name'].charAt(0).toUpperCase() + allPokemon[i]['types'][j]['type']['name'].slice(1);
         document.getElementById(`properties-overview-${cardID}`).innerHTML += /*html*/`
     <div class="property">${pokemonType}</div>`;
     }
 }
 
 
-function renderTypesBigCard(cardID) {
-    for (let j = 0; j < currentPokemon['types'].length; j++) {
-        pokemonType = currentPokemon['types'][j]['type']['name'].charAt(0).toUpperCase() + currentPokemon['types'][j]['type']['name'].slice(1);
+function renderTypesBigCard(cardID, i) {
+    for (let j = 0; j < allPokemon[i]['types'].length; j++) {
+        let pokemonType = allPokemon[i]['types'][j]['type']['name'].charAt(0).toUpperCase() + allPokemon[i]['types'][j]['type']['name'].slice(1);
         document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
         <div class="property">${pokemonType}</div>`;
     }
@@ -111,9 +111,9 @@ function renderTypesBigCard(cardID) {
 
 // -------- FÄHIGKEITEN ANZEIGEN -------- //
 
-function renderAbilities(cardID) {
-    for (let k = 0; k < currentPokemon['abilities'].length; k++) {
-        pokemonAbility = currentPokemon['abilities'][k]['ability']['name'];
+function renderAbilities(cardID, i) {
+    for (let k = 0; k < allPokemon[i]['abilities'].length; k++) {
+        let pokemonAbility = allPokemon[i]['abilities'][k]['ability']['name'];
         document.getElementById(`abilities${cardID}`).innerHTML += /*html*/`
     <div class="ability">${pokemonAbility}</div>`
     }
@@ -122,34 +122,8 @@ function renderAbilities(cardID) {
 
 // -------- GROSSE KARTE SCHLIESSEN -------- //
 
-function closeBigCard(cardID) {
+function closeBigCard() {
     document.getElementById('bigCardContainer').innerHTML = '';
-}
-
-
-// -------- NÄCHSTE KARTE -------- //
-
-function nextCard(cardID) {
-    let nextCard = cardID + 1;
-
-    // if (cardID < pokemon.length - 1) {
-        openBigCard(nextCard);
-    // } else {
-    //     closeBigCard(cardID);
-    // }
-}
-
-
-// -------- VORHERIGE KARTE -------- //
-
-function previousCard(cardID) {
-    let previousCard = cardID - 1;
-
-    if (i > 0) {
-        openBigCard(previousCard);
-    } else {
-        closeBigCard(cardID);
-    }
 }
 
 
@@ -172,7 +146,7 @@ function openTabStats() {
 
 // -------- CHARTS GROSSE KARTE -------- //
 
-function showChart(cardID) {
+function showChart() {
     const ctx = document.getElementById('base-stats-charts');
 
     new Chart(ctx, {
@@ -213,6 +187,17 @@ function showChart(cardID) {
         }
     });
 }
+
+
+
+// -------- NÄCHSTE KARTE -------- //
+
+
+
+
+// -------- VORHERIGE KARTE -------- //
+
+
 
 
 
