@@ -13,16 +13,18 @@
 </head>
 <body onload="init()">
     <div id="header">
+        <div id="header-left">
+        <div><img src="./img/pokemon-white.svg" alt=""></div>
         <h2>Pokedex</h1>
+        </div>
             <div class="search">
                 <img class="icon" src="./img/search-icon.png" alt="">
-        <input id="search-bar" type="search" placeholder="Pokemon suchen">
+        <input id="search-bar" type="search" placeholder="Pokemon suchen" oninput="filterPokemon()">
     </div>
         </div>
-    
-    </div>
 
-   <div id="container"></div>
+   <div id="container">
+   </div>
    <div id="bigCardContainer"></div>
    <div id="button-div">
    <button onclick="loadMore()">Mehr Laden</button>

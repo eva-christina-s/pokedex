@@ -1,8 +1,12 @@
-let pokemon = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let pokemon = []
+for (let i = 1; i <= 60; i++) {
+    pokemon.push(i);
+}
+
 let allPokemon = [];
 let displayedPokemon = [];
 let startIndex = 0;
-let endIndex = 4; // Anzahl der initial zu ladenden Pokémon
+let endIndex = 29;
 let loadMoreExecuted = false;
 
 
@@ -25,8 +29,8 @@ async function loadPokemon(start, end) {
         let cardID = pokemon[i];
         let url = `https://pokeapi.co/api/v2/pokemon/${cardID}`;
         let response = await fetch(url);
-
         let currentPokemon = await response.json();
+
         allPokemon.push(currentPokemon);
         displayedPokemon.push(currentPokemon);
         let pokemonName = capitalize(currentPokemon['name']);
@@ -64,28 +68,50 @@ function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokem
 
 async function loadMore() {
     startIndex = endIndex + 1;
-    endIndex += 5; // Anzahl der zusätzlich zu ladenden Karten
+    endIndex += 30;
     await loadPokemon(startIndex, endIndex);
     loadMoreExecuted = true;
     document.getElementById('button-div').style.display = "none";
-
 }
 
 
 // -------- KARTEN FILTERN -------- //
 
-// Event Listener für Suchleiste
-document.getElementById('search-bar').addEventListener('input', filterPokemon);
-
 function filterPokemon() {
-    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-    const filteredPokemon = displayedPokemon.filter(function (pokemon) {
+    const searchTerm = getSearchTerm();
+
+    if (searchTerm.length >= 3) {
+        const filteredPokemon = getFilteredPokemon(searchTerm);
+        displayFilteredPokemon(filteredPokemon);
+    } else {
+        resetPokemonDisplay();
+    }
+
+    toggleLoadMoreButton(searchTerm);
+}
+
+
+function getSearchTerm() {
+    return document.getElementById('search-bar').value.toLowerCase();
+}
+
+
+function getFilteredPokemon(searchTerm) {
+    return displayedPokemon.filter(function (pokemon) {
         return pokemon.name.toLowerCase().includes(searchTerm);
-    });
+    }).slice(0, 10);
+}
 
-    document.getElementById('container').innerHTML = ''; // aktuellen Karten löschen
 
-    filteredPokemon.forEach(function (pokemon, i) { // gefilterten Karten neu rendern
+function displayFilteredPokemon(filteredPokemon) {
+    document.getElementById('container').innerHTML = '';
+
+    if (filteredPokemon.length === 0) {
+        document.getElementById('container').innerHTML = '<p>Leider nix gefunden</p>';
+        return;
+    }
+
+    filteredPokemon.forEach(function (pokemon, i) {
         let cardID = pokemon.id;
         let pokemonName = capitalize(pokemon.name);
         let pokemonImage = pokemon.sprites.other['official-artwork'].front_default;
@@ -95,7 +121,34 @@ function filterPokemon() {
 
         renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
     });
+}
 
+
+function resetPokemonDisplay() {
+    document.getElementById('container').innerHTML = '';
+
+    let pokemonToDisplay;
+
+    if (loadMoreExecuted) {
+        pokemonToDisplay = displayedPokemon;
+    } else {
+        pokemonToDisplay = displayedPokemon.slice(0, 30);
+    }
+
+    pokemonToDisplay.forEach(function (pokemon, i) {
+        let cardID = pokemon.id;
+        let pokemonName = capitalize(pokemon.name);
+        let pokemonImage = pokemon.sprites.other['official-artwork'].front_default;
+        let pokemonSpecies = capitalize(pokemon.species.name);
+        let pokemonHeight = pokemon.height;
+        let pokemonWeight = pokemon.weight;
+
+        renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
+    });
+}
+
+
+function toggleLoadMoreButton(searchTerm) {
     if (searchTerm.trim() === '') {
         if (!loadMoreExecuted) {
             document.getElementById('button-div').style.display = "flex";
@@ -191,6 +244,7 @@ function renderAbilities(cardID, i) {
 
 function closeBigCard() {
     document.getElementById('bigCardContainer').innerHTML = '';
+    document.body.classList.remove('no-scroll');
 }
 
 
@@ -216,33 +270,30 @@ function openTabStats() {
 async function showChart(cardID) {
     const ctx = document.getElementById('base-stats-charts');
 
-    // Pokemon im allPokemon Array finden
     let currentPokemon;
-    for (let i = 0; i < allPokemon.length; i++) {
+    let found = false;
+    for (let i = 0; i < allPokemon.length && !found; i++) {
         if (allPokemon[i].id === cardID) {
             currentPokemon = allPokemon[i];
-            break;
+            found = true;
         }
     }
 
-    // Base-Stats-Daten aktuelle Karte
     let baseStats = [];
     let labels = [];
     for (let i = 0; i < currentPokemon.stats.length; i++) {
         baseStats.push(currentPokemon.stats[i].base_stat);
-        labels.push(capitalize(currentPokemon.stats[i].stat.name)); // Labels aus dem stat.name Feld extrahieren
+        labels.push(capitalize(currentPokemon.stats[i].stat.name));
     }
 
-    // Sicherstellen, dass der Chart Canvas leer ist, bevor ein neuer Chart erstellt wird
     if (ctx.chart) {
         ctx.chart.destroy();
     }
 
-    // Neue Chart.js-Instanz erstellen
     ctx.chart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: labels, // Dynamisch generierte Labels verwenden
+            labels: labels,
             datasets: [{
                 label: '',
                 data: baseStats,
@@ -278,7 +329,7 @@ async function showChart(cardID) {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        autoSkip: false, // Deaktivieren von autoSkip, um alle Labels anzuzeigen
+                        autoSkip: false,
                     }
                 }
             }
@@ -290,7 +341,9 @@ async function showChart(cardID) {
 // -------- KARTEN DURCHBLÄTTERN -------- //
 
 function previousCard(cardID) {
-    let currentIndex = allPokemon.findIndex(pokemon => pokemon.id === cardID);
+    let currentIndex = allPokemon.findIndex(function(pokemon) {
+        return pokemon.id === cardID;
+    });
     let newIndex = currentIndex - 1;
 
     if (newIndex >= 0) {
@@ -313,7 +366,9 @@ function previousCard(cardID) {
 
 
 function nextCard(cardID) {
-    let currentIndex = allPokemon.findIndex(pokemon => pokemon.id === cardID);
+    let currentIndex = allPokemon.findIndex(function(pokemon) {
+        return pokemon.id === cardID;
+    });
     let newIndex = currentIndex + 1;
 
     if (newIndex < allPokemon.length) {
