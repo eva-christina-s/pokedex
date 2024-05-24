@@ -1,17 +1,20 @@
 let pokemon = []
-for (let i = 1; i <= 60; i++) {
+for (let i = 1; i <= 40; i++) {
     pokemon.push(i);
 }
 
 let allPokemon = [];
 let displayedPokemon = [];
 let startIndex = 0;
-let endIndex = 29;
+let endIndex = 19;
 let loadMoreExecuted = false;
 
 
 async function init() {
+    showLoadingAnimation();
     await loadPokemon(startIndex, endIndex);
+    hideLoadingAnimation();
+    toggleLoadMoreButton();
 }
 
 
@@ -19,6 +22,19 @@ async function init() {
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
+// -------- LOADING ANIMATION -------- //
+
+function showLoadingAnimation() {
+    document.getElementById('button-div').style.display = "none";
+    document.getElementById('loading').style.display = 'flex';
+}
+
+function hideLoadingAnimation() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('button-div').style.display = "flex";
 }
 
 
@@ -68,8 +84,10 @@ function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokem
 
 async function loadMore() {
     startIndex = endIndex + 1;
-    endIndex += 30;
+    endIndex += 20;
+    showLoadingAnimation();
     await loadPokemon(startIndex, endIndex);
+    hideLoadingAnimation();
     loadMoreExecuted = true;
     document.getElementById('button-div').style.display = "none";
 }
