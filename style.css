@@ -101,6 +101,7 @@ input:focus {
 #container {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .card-small {
@@ -234,13 +235,15 @@ h1 {
 .card-menu {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 14px;
 }
 
 .menu-item {
+    font-size: 18px;
     font-weight: 600;
-    color: #565656;
+    color: #838383;
     cursor: pointer;
+    font-weight: 500;
 }
 
 .property-details {
@@ -358,7 +361,7 @@ button {
 @media (max-width: 450px) {
     #chevrons {
         position: absolute;
-        top: 85%;
+        top: 90%;
         width: 100%;
         left: 0;
         right: 0;

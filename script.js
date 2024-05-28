@@ -1,5 +1,5 @@
 let pokemon = []
-for (let i = 1; i <= 40; i++) {
+for (let i = 1; i <= 500; i++) {
     pokemon.push(i);
 }
 
@@ -7,14 +7,12 @@ let allPokemon = [];
 let displayedPokemon = [];
 let startIndex = 0;
 let endIndex = 19;
-let loadMoreExecuted = false;
 
 
 async function init() {
     showLoadingAnimation();
     await loadPokemon(startIndex, endIndex);
     hideLoadingAnimation();
-    toggleLoadMoreButton();
 }
 
 
@@ -63,8 +61,10 @@ async function loadPokemon(start, end) {
 // -------- KARTEN ANZEIGEN -------- //
 
 function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
-    const pokemonTypes = allPokemon[i]['types'];
-    const mainType = pokemonTypes[0]['type']['name'];
+    const pokemonTypes = allPokemon.find(function(pokemon) {
+        return pokemon.id === cardID;
+    }).types;
+    const mainType = pokemonTypes[0].type.name;
 
     document.getElementById('container').innerHTML += /*html*/`
     <div class="card-small ${mainType}" id="card_small_${cardID}" onclick="openBigCard(${cardID}, ${i}, '${pokemonName}', '${pokemonImage}', '${pokemonSpecies}', '${pokemonHeight}', '${pokemonWeight}')">
@@ -73,10 +73,18 @@ function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokem
     <div class="properties-overview" id="properties-overview-${cardID}">
     </div>
 </div>`;
-    renderTypes(cardID, i);
-    if (!loadMoreExecuted) {
-        document.getElementById('button-div').style.display = "flex";
-    }
+    renderTypes(cardID, pokemonTypes, 'properties-overview');
+}
+
+
+// -------- TYPEN ANZEIGEN -------- //
+
+function renderTypes(cardID, pokemonTypes, elementIdPrefix) {
+    pokemonTypes.forEach(function(type) {
+        let pokemonType = capitalize(type.type.name);
+        document.getElementById(`${elementIdPrefix}-${cardID}`).innerHTML += /*html*/`
+        <div class="property">${pokemonType}</div>`;
+    });
 }
 
 
@@ -85,11 +93,13 @@ function renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokem
 async function loadMore() {
     startIndex = endIndex + 1;
     endIndex += 20;
-    showLoadingAnimation();
-    await loadPokemon(startIndex, endIndex);
-    hideLoadingAnimation();
-    loadMoreExecuted = true;
-    document.getElementById('button-div').style.display = "none";
+    if (startIndex < pokemon.length) {
+        showLoadingAnimation();
+        await loadPokemon(startIndex, endIndex);
+        hideLoadingAnimation();
+    } else {
+        document.getElementById('button-div').style.display = "none";
+    }
 }
 
 
@@ -104,22 +114,18 @@ function filterPokemon() {
     } else {
         resetPokemonDisplay();
     }
-
     toggleLoadMoreButton(searchTerm);
 }
-
 
 function getSearchTerm() {
     return document.getElementById('search-bar').value.toLowerCase();
 }
 
-
 function getFilteredPokemon(searchTerm) {
-    return displayedPokemon.filter(function (pokemon) {
+    return displayedPokemon.filter(function(pokemon) {
         return pokemon.name.toLowerCase().includes(searchTerm);
     }).slice(0, 10);
 }
-
 
 function displayFilteredPokemon(filteredPokemon) {
     document.getElementById('container').innerHTML = '';
@@ -129,7 +135,7 @@ function displayFilteredPokemon(filteredPokemon) {
         return;
     }
 
-    filteredPokemon.forEach(function (pokemon, i) {
+    filteredPokemon.forEach(function(pokemon, i) {
         let cardID = pokemon.id;
         let pokemonName = capitalize(pokemon.name);
         let pokemonImage = pokemon.sprites.other['official-artwork'].front_default;
@@ -140,20 +146,12 @@ function displayFilteredPokemon(filteredPokemon) {
         renderCards(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
     });
 }
-
 
 function resetPokemonDisplay() {
     document.getElementById('container').innerHTML = '';
+    let pokemonToDisplay = displayedPokemon.slice(0, Math.min(displayedPokemon.length, startIndex + 20));
 
-    let pokemonToDisplay;
-
-    if (loadMoreExecuted) {
-        pokemonToDisplay = displayedPokemon;
-    } else {
-        pokemonToDisplay = displayedPokemon.slice(0, 30);
-    }
-
-    pokemonToDisplay.forEach(function (pokemon, i) {
+    pokemonToDisplay.forEach(function(pokemon, i) {
         let cardID = pokemon.id;
         let pokemonName = capitalize(pokemon.name);
         let pokemonImage = pokemon.sprites.other['official-artwork'].front_default;
@@ -165,17 +163,13 @@ function resetPokemonDisplay() {
     });
 }
 
-
 function toggleLoadMoreButton(searchTerm) {
     if (searchTerm.trim() === '') {
-        if (!loadMoreExecuted) {
-            document.getElementById('button-div').style.display = "flex";
-        }
+        document.getElementById('button-div').style.display = "flex";
     } else {
         document.getElementById('button-div').style.display = "none";
     }
 }
-
 
 // -------- GROSSE KARTE ANZEIGEN -------- //
 
@@ -183,17 +177,25 @@ function openBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokem
     document.getElementById('bigCardContainer').innerHTML = '';
     document.getElementById('bigCardContainer').innerHTML += returnHTMLBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight);
 
-    renderTypesBigCard(cardID, i);
+    const pokemonTypes = allPokemon.find(function(pokemon) {
+        return pokemon.id === cardID;
+    }).types;
+    renderTypes(cardID, pokemonTypes, 'properties-overview-bc');
+   
     renderAbilities(cardID, i);
+    openTabAbout();
     showChart(cardID);
+    document.body.classList.add('no-scroll');
 }
 
 
 // -------- GROSSE KARTE HTML -------- //
 
 function returnHTMLBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies, pokemonHeight, pokemonWeight) {
-    const pokemonTypes = allPokemon[i]['types'];
-    const mainType = pokemonTypes[0]['type']['name'];
+    const pokemonTypes = allPokemon.find(function(pokemon) {
+        return pokemon.id === cardID;
+    }).types;
+    const mainType = pokemonTypes[0].type.name;
 
     return /*html*/`
     <div class="dialog-bg" id="dialog_${cardID}">
@@ -227,26 +229,6 @@ function returnHTMLBigCard(cardID, i, pokemonName, pokemonImage, pokemonSpecies,
 }
 
 
-// -------- TYPEN ANZEIGEN -------- //
-
-function renderTypes(cardID, i) {
-    for (let j = 0; j < allPokemon[i]['types'].length; j++) {
-        let pokemonType = capitalize(allPokemon[i]['types'][j]['type']['name']);
-        document.getElementById(`properties-overview-${cardID}`).innerHTML += /*html*/`
-    <div class="property">${pokemonType}</div>`;
-    }
-}
-
-
-function renderTypesBigCard(cardID, i) {
-    for (let j = 0; j < allPokemon[i]['types'].length; j++) {
-        let pokemonType = capitalize(allPokemon[i]['types'][j]['type']['name']);
-        document.getElementById(`properties-overview-bc-${cardID}`).innerHTML += /*html*/`
-        <div class="property">${pokemonType}</div>`;
-    }
-}
-
-
 // -------- FÄHIGKEITEN ANZEIGEN -------- //
 
 function renderAbilities(cardID, i) {
@@ -269,17 +251,25 @@ function closeBigCard() {
 // -------- TABS GROSSE KARTE -------- //
 
 function openTabAbout() {
+    let tab1 = document.getElementById('menu-about');
+    let tab2 = document.getElementById('menu-stats');
     document.getElementById('about').style.display = "block";
     document.getElementById('base-stats').style.display = "none";
-    document.getElementById('menu-about').style.color = "#000";
-    document.getElementById('menu-stats').style.color = "#565656";
+    tab1.style.color = "#000";
+    tab1.style.fontWeight = "bold";
+    tab2.style.color = "#838383";
+    tab2.style.fontWeight = "400";
 }
 
 function openTabStats() {
+    let tab1 = document.getElementById('menu-about');
+    let tab2 = document.getElementById('menu-stats');
     document.getElementById('base-stats').style.display = "block";
     document.getElementById('about').style.display = "none";
-    document.getElementById('menu-stats').style.color = "#000";
-    document.getElementById('menu-about').style.color = "#565656";
+    tab2.style.color = "#000";
+    tab2.style.fontWeight = "bold";
+    tab1.style.color = "#838383";
+    tab1.style.fontWeight = "400";
 }
 
 
